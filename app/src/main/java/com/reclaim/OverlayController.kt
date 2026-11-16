@@ -29,6 +29,7 @@ class OverlayController(
     private val iconCovers = mutableListOf<View>()
     private var iconRegions: List<Bounds> = emptyList()
     private var guard: SwipeCatcherView? = null
+    private var eye: EyeView? = null
 
     fun updateIcons(regions: List<Bounds>) {
         if (regions == iconRegions) return
@@ -53,19 +54,33 @@ class OverlayController(
 
     fun setSwipeGuard(enabled: Boolean) {
         if (enabled) {
-            if (guard != null) return
-            val view = SwipeCatcherView(service, onSwipe, ::forwardTap)
-            try {
-                windowManager.addView(view, guardParams())
-                guard = view
-            } catch (error: RuntimeException) {
-                Log.w(TAG, "Could not watch swipes", error)
+            if (guard == null) {
+                val view = SwipeCatcherView(service, onSwipe, ::forwardTap)
+                try {
+                    windowManager.addView(view, guardParams())
+                    guard = view
+                } catch (error: RuntimeException) {
+                    Log.w(TAG, "Could not watch swipes", error)
+                }
+            }
+            if (eye == null) {
+                val view = EyeView(service)
+                try {
+                    windowManager.addView(view, eyeParams())
+                    eye = view
+                } catch (error: RuntimeException) {
+                    Log.w(TAG, "Could not show the eye", error)
+                }
             }
         } else {
             guard?.let { view ->
                 runCatching { windowManager.removeView(view) }
             }
             guard = null
+            eye?.let { view ->
+                runCatching { windowManager.removeView(view) }
+            }
+            eye = null
         }
     }
 
@@ -139,6 +154,27 @@ class OverlayController(
             params.flags or notTouchable
         }
         runCatching { windowManager.updateViewLayout(view, params) }
+    }
+
+    private fun eyeParams(): WindowManager.LayoutParams {
+        val density = service.resources.displayMetrics.density
+        val size = (44f * density).toInt()
+        val margin = (10f * density).toInt()
+        val statusId = service.resources.getIdentifier("status_bar_height", "dimen", "android")
+        val statusBar = if (statusId > 0) service.resources.getDimensionPixelSize(statusId) else 0
+        return WindowManager.LayoutParams(
+            size,
+            size,
+            WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+            PixelFormat.TRANSLUCENT,
+        ).apply {
+            gravity = Gravity.TOP or Gravity.END
+            x = margin
+            y = statusBar + margin
+        }
     }
 
     private fun guardParams(): WindowManager.LayoutParams {
