@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Reclaim</string>
+    <string name="accessibility_description">Covers the Instagram Reels icon and the YouTube Shorts icon in the bottom bar. Feed posts stay visible. When a Reel or Short is open, a finger swipe presses the system back button. Reclaim reads on-screen controls and does not look at URLs.</string>
+    <string name="status_on">Reclaim is on. It acts while Instagram or YouTube is in front.</string>
+    <string name="status_off">Reclaim is off. Turn it on in Android accessibility settings.</string>
+    <string name="enable_accessibility">Open accessibility settings</string>
+    <string name="body">Reclaim covers the Reels icon and the Shorts icon in the bottom bar. Reels and Shorts that appear in the feed stay visible. When a Reel or Short is open, a finger swipe presses the system back button, which returns to the previous screen, such as the chat. A tap still reaches the video.</string>
+</resources>
